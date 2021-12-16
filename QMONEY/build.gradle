@@ -1,0 +1,161 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'maven-publish'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'com.github.spotbugs' version '4.5.0'
+}
+
+group = 'com.crio.warmup'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+ext {
+    buildId = System.currentTimeMillis()
+    // Dependency versions
+    springBootVersion = '2.1.8.RELEASE'
+    springCoreVersion = '5.1.9.RELEASE'
+    jacksonVersion = "2.9.8"
+}
+apply plugin: "idea"
+apply plugin: "checkstyle"
+apply plugin: 'application'
+mainClassName = 'com.crio.warmup.stock.PortfolioManagerApplication'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.decampo', name: 'xirr', version: '0.1'
+    compile group: 'org.springframework', name: 'spring-web', version: '5.2.2.RELEASE'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.1'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.10.1'
+
+    compile("org.springframework.boot:spring-boot-starter-log4j2:2.1.8.RELEASE") {
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-core'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-jul'
+        exclude group: 'org.slf4j', module: 'jul-to-slf4j'
+    }
+
+    // log4j2 dependencies
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.12.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.12.1'
+    //compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.12.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-jul', version: '2.12.1'
+    compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.28'
+
+    //other libraries apart from spring
+    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+
+    //junits
+    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.2.4'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+configurations {
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+allprojects {
+    buildDir = '/tmp/external_build'
+}
+
+subprojects {
+    apply plugin: "java-library"
+    apply plugin: "idea"
+    apply plugin: "checkstyle"
+    apply plugin: "jacoco"
+    apply plugin: "com.github.spotbugs"
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    test {
+        reports {
+            junitXml.enabled = true
+            def destinationDirectory = System.getProperty("user.home") + "/.gradle/daemon/${buildId}/test-results"
+            junitXml.destination = file(destinationDirectory)
+            html.enabled = true
+        }
+        useJUnitPlatform {
+        }
+        testLogging.events ("STANDARD_ERROR")
+        testLogging.events ("STANDARD_OUT")
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                println "\nTEST RESULT: ${result.resultType}"
+                println "TEST SUMMARY: RAN ${result.testCount} TESTS, " +
+                        "${result.successfulTestCount} SUCCEEDED, " +
+                        "${result.failedTestCount} FAILED, " +
+                        "${result.skippedTestCount} SKIPPED"
+            }
+        }
+    }
+
+    apply plugin: 'checkstyle'
+    checkstyle {
+       toolVersion '7.8.1'
+        checkstyleTest.enabled = false
+       //configFile file("config/checkstyle/checkstyle.xml")
+    }
+    checkstyleMain {
+        source ='src/main/java'
+    }
+    checkstyleTest {
+        source ='src/test/java'
+    }
+
+    spotbugsMain {
+        ignoreFailures = true
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
+
+    spotbugsTest {
+        ignoreFailures = true
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
+
+}
+compileJava.dependsOn clean
+
+/*
+publishing {
+    publications {        
+        maven(MavenPublication) {
+            groupId =  'com.stock'
+            artifactId = 'annual-return'
+            version = '1.0.0'
+            from components.java
+         }
+    }
+}
+*/
