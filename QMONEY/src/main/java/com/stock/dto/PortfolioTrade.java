@@ -6,11 +6,6 @@ public class PortfolioTrade {
 
   public PortfolioTrade() {  }
 
-  public static enum TradeType {
-    BUY,
-    SELL
-  }
-
   private String symbol;
   private int quantity;
   private TradeType tradeType;
@@ -39,7 +34,6 @@ public class PortfolioTrade {
     this.purchaseDate = purchaseDate;
   }
 
-  //solution
   public String getSymbol() {
     return symbol;
   }
@@ -55,6 +49,5 @@ public class PortfolioTrade {
   public TradeType getTradeType() {
     return tradeType;
   }
-  //solution
 
 }
