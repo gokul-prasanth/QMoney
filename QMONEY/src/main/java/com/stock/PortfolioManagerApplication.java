@@ -1,9 +1,9 @@
-package com.stock.portfolio;
+package com.stock;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -19,18 +19,20 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.ThreadContext;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import org.apache.logging.log4j.ThreadContext;
+import org.springframework.web.client.RestTemplate;
 import com.stock.dto.AnnualizedReturn;
 import com.stock.dto.Candle;
 import com.stock.dto.PortfolioTrade;
 import com.stock.dto.TiingoCandle;
 import com.stock.log.UncaughtExceptionHandler;
+import com.stock.portfolio.PortfolioManager;
+import com.stock.portfolio.PortfolioManagerFactory;
 
 public class PortfolioManagerApplication {
 
@@ -55,7 +57,6 @@ public class PortfolioManagerApplication {
 
 	private static File resolveFileFromResources(String filename) throws URISyntaxException {
 		return Paths.get(Thread.currentThread().getContextClassLoader().getResource(filename).toURI()).toFile();
-
 	}
 
 	private static ObjectMapper getObjectMapper() {
@@ -64,22 +65,6 @@ public class PortfolioManagerApplication {
 		return objectMapper;
 	}
 
-
-	public static List<String> debugOutputs() {
-
-		String valueOfArgument0 = "trades.json";
-		String resultOfResolveFilePathArgs0 = "/home/crio-user/workspace/prasanthgokulgp-ME_QMONEY_V2/qmoney/bin/main/trades.json";
-		String toStringOfObjectMapper = "com.fasterxml.jackson.databind.ObjectMapper@2f9f7dcf";
-		String functionNameFromTestFileInStackTrace = "mainReadFile";
-		String lineNumberFromTestFileInStackTrace = "29";
-
-		return Arrays.asList(new String[] { valueOfArgument0, resultOfResolveFilePathArgs0, toStringOfObjectMapper,
-				functionNameFromTestFileInStackTrace, lineNumberFromTestFileInStackTrace });
-	}
-
-	// Note:
-	// Remember to confirm that you are getting same results for annualized returns
-	// as in Module 3.
 	public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
 
 		List<PortfolioTrade> trades = readTradesFromJson(args[0]);

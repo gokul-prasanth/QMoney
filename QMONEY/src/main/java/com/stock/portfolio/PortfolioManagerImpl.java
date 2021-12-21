@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.stock.PortfolioManagerApplication;
 import com.stock.dto.AnnualizedReturn;
 import com.stock.dto.Candle;
 import com.stock.dto.PortfolioTrade;
